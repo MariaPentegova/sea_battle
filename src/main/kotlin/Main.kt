@@ -18,19 +18,16 @@ fun main() {
 
     when (choice) {
         0 -> {
-            // GUI режим
             SwingUtilities.invokeLater {
                 val frame = MainFrame()
                 frame.isVisible = true
             }
         }
         1 -> {
-            // Консольный режим - создаём зависимости
             val validator = BoardValidator()
             val battleService = BattleService(validator)
             val boardFactory = BoardFactory()
-            val registry = PlayerRegistry()  // для сохранения игроков
-            val gameManager = GameManager(validator, battleService, boardFactory, registry)
+            val gameManager = GameManager(validator, battleService, boardFactory)
             val consoleUI = ConsoleUI(gameManager, boardFactory)
             consoleUI.start()
         }
