@@ -183,10 +183,10 @@ class ShipPlacementDialog(
                     dispose()
                 }
             }
-            ShipPlacementResult.OUT_OF_BOUNDS -> statusLabel.text = "Выход за границы поля!"
-            ShipPlacementResult.OVERLAP -> statusLabel.text = "Пересечение с другим кораблём!"
-            ShipPlacementResult.TOO_CLOSE -> statusLabel.text = "Слишком близко к другому кораблю (нужен зазор 1 клетку)!"
-            ShipPlacementResult.INVALID_DIRECTION -> statusLabel.text = "Неверное направление!"
+            ShipPlacementResult.OUT_OF_BOUNDS -> statusLabel.text = " Выход за границы поля!"
+            ShipPlacementResult.OVERLAP -> statusLabel.text = " Пересечение с другим кораблём!"
+            ShipPlacementResult.TOO_CLOSE -> statusLabel.text = " Слишком близко к другому кораблю (нужен зазор 1 клетку)!"
+            ShipPlacementResult.INVALID_DIRECTION -> statusLabel.text = " Неверное направление!"
         }
 
         revalidate()
