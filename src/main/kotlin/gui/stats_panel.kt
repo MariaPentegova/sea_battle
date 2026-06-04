@@ -1,6 +1,5 @@
 package gui
 
-import models.PlayerStatsRecord
 import service.GameManager
 import java.awt.BorderLayout
 import java.awt.Font
@@ -14,13 +13,13 @@ class StatsPanel(private val gameManager: GameManager) : JPanel() {
         arrayOf("ID", "Игрок", "Игр", "Побед", "% побед", "Попаданий", "Кораблей"), 0
     )
     private val statsTable = JTable(statsTableModel)
-    private val refreshButton = JButton("🔄 Обновить статистику")
+    private val refreshButton = JButton(" Обновить статистику")
 
     private val historyTableModel = DefaultTableModel(
         arrayOf("ID игры", "Игрок 1", "Игрок 2", "Победитель", "Дата", "Ходов"), 0
     )
     private val historyTable = JTable(historyTableModel)
-    private val refreshHistoryButton = JButton("🔄 Обновить историю")
+    private val refreshHistoryButton = JButton(" Обновить историю")
 
     private val tabbedPane = JTabbedPane()
 
@@ -42,7 +41,7 @@ class StatsPanel(private val gameManager: GameManager) : JPanel() {
 
     private fun setupCollapsiblePanel() {
         val titlePanel = JPanel(BorderLayout())
-        val titleLabel = JLabel("📊 СТАТИСТИКА И ИСТОРИЯ", SwingConstants.CENTER)
+        val titleLabel = JLabel(" СТАТИСТИКА И ИСТОРИЯ", SwingConstants.CENTER)
         titleLabel.font = Font("Arial", Font.BOLD, 14)
 
         titlePanel.add(collapseButton, BorderLayout.WEST)
@@ -51,7 +50,7 @@ class StatsPanel(private val gameManager: GameManager) : JPanel() {
         collapseButton.addActionListener {
             isCollapsed = !isCollapsed
             contentPanel.isVisible = !isCollapsed
-            collapseButton.text = if (isCollapsed) "▶ Развернуть" else "▼ Свернуть"
+            collapseButton.text = if (isCollapsed) " Развернуть" else " Свернуть"
         }
 
         add(titlePanel, BorderLayout.NORTH)
@@ -65,7 +64,7 @@ class StatsPanel(private val gameManager: GameManager) : JPanel() {
         statsTable.getTableHeader().reorderingAllowed = false
 
         val statsScrollPane = JScrollPane(statsTable)
-        statsScrollPane.border = BorderFactory.createTitledBorder("📈 Статистика игроков")
+        statsScrollPane.border = BorderFactory.createTitledBorder(" Статистика игроков")
         statsScrollPane.preferredSize = java.awt.Dimension(280, 250)
 
         historyTable.font = Font("Monospaced", Font.PLAIN, 11)
@@ -73,7 +72,7 @@ class StatsPanel(private val gameManager: GameManager) : JPanel() {
         historyTable.getTableHeader().reorderingAllowed = false
 
         val historyScrollPane = JScrollPane(historyTable)
-        historyScrollPane.border = BorderFactory.createTitledBorder("📜 История партий")
+        historyScrollPane.border = BorderFactory.createTitledBorder(" История партий")
         historyScrollPane.preferredSize = java.awt.Dimension(280, 250)
 
         tabbedPane.addTab("Статистика", statsScrollPane)
