@@ -5,7 +5,6 @@ import models.StoredGame
 import models.PlayerStatsRecord
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.SQLException
 
 class DatabaseManager(private val dbPath: String = "battleship.db") {
 
@@ -140,31 +139,28 @@ class DatabaseManager(private val dbPath: String = "battleship.db") {
             moveStmt.execute()
         }
 
-        // Обновляем статистику
         refreshStatistics()
     }
 
     private fun refreshStatistics() {
         val conn = getConnection()
 
-        // Очищаем старую статистику
         conn.prepareStatement("DELETE FROM player_statistics").execute()
 
-        // Пересчитываем статистику заново
         conn.prepareStatement("""
-            INSERT INTO player_statistics (player_id, games_played, games_won, total_hits, total_moves, ships_sunk)
-            SELECT 
-                p.id,
-                COUNT(DISTINCT g.id) as games_played,
-                SUM(CASE WHEN g.winner_id = p.id THEN 1 ELSE 0 END) as games_won,
-                COALESCE(SUM(CASE WHEN m.is_hit = 1 THEN 1 ELSE 0 END), 0) as total_hits,
-                COALESCE(COUNT(m.id), 0) as total_moves,
-                COALESCE(SUM(CASE WHEN m.is_kill = 1 THEN 1 ELSE 0 END), 0) as ships_sunk
-            FROM players p
-            LEFT JOIN games g ON g.player1_id = p.id OR g.player2_id = p.id
-            LEFT JOIN moves m ON m.player_id = p.id
-            GROUP BY p.id
-        """.trimIndent()).execute()
+        INSERT INTO player_statistics (player_id, games_played, games_won, total_hits, total_moves, ships_sunk)
+        SELECT 
+            p.id,
+            COUNT(DISTINCT g.id) as games_played,
+            SUM(CASE WHEN g.winner_id = p.id THEN 1 ELSE 0 END) as games_won,
+            COALESCE(SUM(CASE WHEN m.is_hit = 1 AND m.player_id = p.id THEN 1 ELSE 0 END), 0) as total_hits,
+            COALESCE(COUNT(CASE WHEN m.player_id = p.id THEN 1 END), 0) as total_moves,
+            COALESCE(SUM(CASE WHEN m.is_kill = 1 AND m.player_id = p.id THEN 1 ELSE 0 END), 0) as ships_sunk
+        FROM players p
+        LEFT JOIN games g ON g.player1_id = p.id OR g.player2_id = p.id
+        LEFT JOIN moves m ON m.game_id = g.id
+        GROUP BY p.id
+    """.trimIndent()).execute()
     }
 
     fun getAllGames(): List<StoredGame> {
@@ -290,13 +286,5 @@ class DatabaseManager(private val dbPath: String = "battleship.db") {
         conn.prepareStatement("DELETE FROM games").execute()
         conn.prepareStatement("DELETE FROM player_statistics").execute()
         conn.prepareStatement("DELETE FROM players").execute()
-    }
-
-    fun close() {
-        try {
-            connection?.close()
-        } catch (e: SQLException) {
-            e.printStackTrace()
-        }
     }
 }
