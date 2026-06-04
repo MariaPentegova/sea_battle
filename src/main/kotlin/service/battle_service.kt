@@ -4,7 +4,7 @@ import models.MoveResult
 
 class BattleService(private val validator: BoardValidator) {
 
-    fun makeMove(board: Array<Array<Char>>, row: Int, col: Int): MoveResult {
+    fun checkMove(board: Array<Array<Char>>, row: Int, col: Int): MoveResult {
         if (!validator.isInBounds(row, col)) return MoveResult.INVALID
 
         return when (board[row][col]) {
