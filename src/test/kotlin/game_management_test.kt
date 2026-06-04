@@ -341,12 +341,20 @@ class GameManagerTest {
         val p1 = gameManager.addPlayer("Анна")
         val p2 = gameManager.addPlayer("Борис")
         gameManager.createGame(p1.id, p2.id)
-
+    
         assertFalse(gameManager.isFleetReady(p1.id))
-
+    
         gameManager.placeShip(p1.id, 0, 0, 4, "right")
-
-        assertFalse(gameManager.isFleetReady(p1.id))
-
+        gameManager.placeShip(p1.id, 0, 2, 3, "right")
+        gameManager.placeShip(p1.id, 0, 4, 3, "right")
+        gameManager.placeShip(p1.id, 2, 0, 2, "right")
+        gameManager.placeShip(p1.id, 2, 3, 2, "right")
+        gameManager.placeShip(p1.id, 2, 6, 2, "right")
+        gameManager.placeShip(p1.id, 4, 0, 1, "right")
+        gameManager.placeShip(p1.id, 4, 2, 1, "right")
+        gameManager.placeShip(p1.id, 4, 4, 1, "right")
+        gameManager.placeShip(p1.id, 4, 6, 1, "right")
+    
+        assertTrue(gameManager.isFleetReady(p1.id))
     }
 }
