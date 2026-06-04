@@ -1,33 +1,27 @@
-ackage service
+package service
 
 import models.*
 
 class GameManager(
     private val validator: BoardValidator,
     private val battleService: BattleService,
-    private val boardFactory: BoardFactory,
-    private val registry: PlayerRegistry = PlayerRegistry()// Здесь всё правильно
-)  {
+    private val boardFactory: BoardFactory
+) {
     private var nextPlayerId = 1
     private val players = mutableMapOf<Int, Player>()
     private var currentGame: GameState? = null
 
-    init {
-        // Загружаем игроков из реестра при старте
-        registry.getAll().forEach { players[it.id] = it }
-        nextPlayerId = (players.keys.maxOrNull() ?: 0) + 1
-    }
-
     fun addPlayer(name: String): Player {
         val player = Player(nextPlayerId, name.trim())
         players[nextPlayerId] = player
-        registry.save(player)  // ← сохраняем в реестр
         nextPlayerId++
         return player
     }
 
     fun getAllPlayers(): List<Player> = players.values.toList()
+    
     fun getPlayerById(id: Int): Player? = players[id]
+    
     fun getCurrentGame(): GameState? = currentGame
 
     fun createGame(player1Id: Int, player2Id: Int): GameState? {
@@ -71,7 +65,6 @@ class GameManager(
     fun makeMove(playerId: Int, row: Int, col: Int): MoveResult {
         val game = currentGame ?: return MoveResult.INVALID
 
-        // НОВАЯ ПРОВЕРКА - не ломает существующие тесты
         if (row !in 0 until BoardValidator.SIZE || col !in 0 until BoardValidator.SIZE) {
             return MoveResult.INVALID
         }
@@ -103,17 +96,15 @@ class GameManager(
     fun getGameStats(): GameStats {
         val game = currentGame ?: return GameStats.empty()
 
-        // player1Hits - попадания игрока 1 (на доске игрока 2)
-        // player2Hits - попадания игрока 2 (на доске игрока 1)
         return GameStats(
             player1Id = game.player1.id,
             player1Name = game.player1.name,
-            player1Ships = battleService.getRemainingShipsCount(game.board1),  // корабли игрока 1
-            player1Hits = battleService.getHitCount(game.board2),  // ← попадания игрока 1 на доске игрока 2
+            player1Ships = battleService.getRemainingShipsCount(game.board1),
+            player1Hits = battleService.getHitCount(game.board2),
             player2Id = game.player2.id,
             player2Name = game.player2.name,
-            player2Ships = battleService.getRemainingShipsCount(game.board2),  // корабли игрока 2
-            player2Hits = battleService.getHitCount(game.board1),  // ← попадания игрока 2 на доске игрока 1
+            player2Ships = battleService.getRemainingShipsCount(game.board2),
+            player2Hits = battleService.getHitCount(game.board1),
             currentPlayerId = game.currentPlayer.id,
             currentPlayerName = game.currentPlayer.name
         )
@@ -123,7 +114,7 @@ class GameManager(
         val game = currentGame ?: return false
         val player = getPlayerById(playerId) ?: return false
         val board = game.getBoard(player)
-        val expectedTotalCells = 20 // 4+3+3+2+2+2+1+1+1+1
+        val expectedTotalCells = 20
         val actualCells = battleService.getRemainingShipsCount(board)
         return actualCells == expectedTotalCells
     }
