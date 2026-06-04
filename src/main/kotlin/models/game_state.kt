@@ -1,5 +1,6 @@
 package models
 
+//показ статистики
 data class GameStats(
     val player1Id: Int,
     val player1Name: String,
@@ -17,6 +18,7 @@ data class GameStats(
     }
 }
 
+//текущее состояние игры
 data class GameState(
     val player1: Player,
     val player2: Player,
