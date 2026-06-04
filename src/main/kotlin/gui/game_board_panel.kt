@@ -145,12 +145,12 @@ class GameBoardPanel(
 
         when (result) {
             MoveResult.HIT -> {
-                statusLabel.text = "ПОПАДАНИЕ! ${currentPlayer.name} стреляет ещё раз!"
+                statusLabel.text = " ПОПАДАНИЕ! ${currentPlayer.name} стреляет ещё раз!"
                 updateAllBoards()
                 onStatsUpdate()
             }
             MoveResult.KILL -> {
-                statusLabel.text = "ПОПАДАНИЕ! КОРАБЛЬ ПОТОПЛЕН! ${currentPlayer.name} стреляет ещё раз!"
+                statusLabel.text = " ПОПАДАНИЕ!  КОРАБЛЬ ПОТОПЛЕН! ${currentPlayer.name} стреляет ещё раз!"
                 updateAllBoards()
                 onStatsUpdate()
                 if (gameState.winner != null) {
@@ -158,19 +158,19 @@ class GameBoardPanel(
                 }
             }
             MoveResult.MISS -> {
-                statusLabel.text = "ПРОМАХ! Ход переходит к ${gameState.getOpponent(currentPlayer).name}"
+                statusLabel.text = " ПРОМАХ! Ход переходит к ${gameState.getOpponent(currentPlayer).name}"
                 updateAllBoards()
                 updateTurnInfo()
                 onStatsUpdate()
             }
             MoveResult.ALREADY_SHOT -> {
-                statusLabel.text = "Сюда уже стреляли!"
+                statusLabel.text = " Сюда уже стреляли!"
             }
             MoveResult.INVALID -> {
-                statusLabel.text = "Неверный ход!"
+                statusLabel.text = " Неверный ход!"
             }
             MoveResult.GAME_WON -> {
-                statusLabel.text = "ПОБЕДА! ${currentPlayer.name} выиграл!"
+                statusLabel.text = " ПОБЕДА! ${currentPlayer.name} выиграл! "
                 updateAllBoards()
                 onStatsUpdate()
                 if (gameState.winner != null) {
@@ -259,10 +259,10 @@ class GameBoardPanel(
 
     private fun updateTurnInfo() {
         if (gameState.winner != null) {
-            currentPlayerLabel.text = "ИГРА ОКОНЧЕНА! Победитель: ${gameState.winner!!.name} (ID: ${gameState.winner!!.id})"
+            currentPlayerLabel.text = " ИГРА ОКОНЧЕНА! Победитель: ${gameState.winner!!.name} (ID: ${gameState.winner!!.id}) 🏆"
             currentPlayerLabel.foreground = Color.GREEN
         } else {
-            currentPlayerLabel.text = "ХОДИТ: ${gameState.currentPlayer.name} (ID: ${gameState.currentPlayer.id})"
+            currentPlayerLabel.text = " ХОДИТ: ${gameState.currentPlayer.name} (ID: ${gameState.currentPlayer.id})"
             currentPlayerLabel.foreground = Color.BLUE
         }
     }
