@@ -15,8 +15,8 @@ class PlayersPanel(
 
     private val playersListModel = DefaultListModel<Player>()
     private val playersList = JList(playersListModel)
-    private val addButton = JButton("Добавить игрока")
-    private val deleteButton = JButton("Удалить")
+    private val addButton = JButton(" Добавить игрока")
+    private val deleteButton = JButton(" Удалить")
 
     init {
         layout = BorderLayout()
