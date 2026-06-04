@@ -1,14 +1,5 @@
 package database
-
-data class PlayerStats(
-    val playerId: Int,
-    val playerName: String = "",
-    val gamesPlayed: Int = 0,
-    val gamesWon: Int = 0,
-    val totalHits: Int = 0,
-    val totalMoves: Int = 0,
-    val shipsSunk: Int = 0
-)
+import models.PlayerStatsRecord
 
 class PlayerStatsRepository(private val dbManager: DatabaseManager) {
 
@@ -31,7 +22,7 @@ class PlayerStatsRepository(private val dbManager: DatabaseManager) {
         """.trimIndent()).execute()
     }
 
-    fun getPlayerStats(playerId: Int): PlayerStats? {
+    fun getPlayerStats(playerId: Int): PlayerStatsRecord? {
         val conn = dbManager.getConnection()
         val stmt = conn.prepareStatement("""
             SELECT ps.*, p.name 
@@ -43,7 +34,7 @@ class PlayerStatsRepository(private val dbManager: DatabaseManager) {
         val rs = stmt.executeQuery()
 
         return if (rs.next()) {
-            PlayerStats(
+            PlayerStatsRecord(
                 playerId = rs.getInt("player_id"),
                 playerName = rs.getString("name"),
                 gamesPlayed = rs.getInt("games_played"),
@@ -55,9 +46,9 @@ class PlayerStatsRepository(private val dbManager: DatabaseManager) {
         } else null
     }
 
-    fun getAllPlayerStats(): List<PlayerStats> {
+    fun getAllPlayerStats(): List<PlayerStatsRecord> {
         val conn = dbManager.getConnection()
-        val stats = mutableListOf<PlayerStats>()
+        val stats = mutableListOf<PlayerStatsRecord>()
 
         val rs = conn.prepareStatement("""
             SELECT ps.*, p.name 
@@ -67,7 +58,7 @@ class PlayerStatsRepository(private val dbManager: DatabaseManager) {
         """.trimIndent()).executeQuery()
 
         while (rs.next()) {
-            stats.add(PlayerStats(
+            stats.add(PlayerStatsRecord(
                 playerId = rs.getInt("player_id"),
                 playerName = rs.getString("name"),
                 gamesPlayed = rs.getInt("games_played"),
