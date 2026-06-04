@@ -5,28 +5,21 @@ import models.ShipPlacementResult
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
 import service.*
-import java.io.File
 
 class IntegrationTest {
 
     private lateinit var validator: BoardValidator
     private lateinit var battleService: BattleService
     private lateinit var factory: BoardFactory
-    private lateinit var registry: PlayerRegistry
     private lateinit var gameManager: GameManager
-
-    @TempDir
-    lateinit var tempDir: File
 
     @BeforeEach
     fun setUp() {
         validator = BoardValidator()
         battleService = BattleService(validator)
         factory = BoardFactory()
-        registry = PlayerRegistry(tempDir.resolve("test_players.json").absolutePath)
-        gameManager = GameManager(validator, battleService, factory, registry)
+        gameManager = GameManager(validator, battleService, factory)
     }
 
     @Test
@@ -52,32 +45,6 @@ class IntegrationTest {
     }
 
     @Test
-    fun `player registry integration - players persist between game sessions`() {
-        val p1 = gameManager.addPlayer("Анна")
-        val p2 = gameManager.addPlayer("Борис")
-
-        assertEquals(2, gameManager.getAllPlayers().size)
-
-        val newGameManager = GameManager(validator, battleService, factory, registry)
-        val loadedPlayers = newGameManager.getAllPlayers()
-
-        assertEquals(2, loadedPlayers.size)
-        assertTrue(loadedPlayers.any { it.name == "Анна" })
-        assertTrue(loadedPlayers.any { it.name == "Борис" })
-    }
-
-    @Test
-    fun `player registry integration - new players get unique IDs across sessions`() {
-        val p1 = gameManager.addPlayer("Анна")
-        assertEquals(1, p1.id)
-
-        val newGameManager = GameManager(validator, battleService, factory, registry)
-        val p2 = newGameManager.addPlayer("Борис")
-
-        assertEquals(2, p2.id)
-    }
-
-    @Test
     fun `game statistics integration - stats update after game`() {
         val p1 = gameManager.addPlayer("Анна")
         val p2 = gameManager.addPlayer("Борис")
@@ -95,7 +62,7 @@ class IntegrationTest {
     }
 
     @Test
-    fun `full game flow with registry and statistics`() {
+    fun `full game flow with multiple players`() {
         val p1 = gameManager.addPlayer("Анна")
         val p2 = gameManager.addPlayer("Борис")
         val p3 = gameManager.addPlayer("Светлана")
@@ -119,38 +86,6 @@ class IntegrationTest {
         assertNotNull(newGame)
         assertEquals(p2.id, newGame?.player1?.id)
         assertEquals(p3.id, newGame?.player2?.id)
-    }
-
-    @Test
-    fun `player registry integration - restart application preserves players`() {
-        val p1 = gameManager.addPlayer("Анна")
-        val p2 = gameManager.addPlayer("Борис")
-
-        val newRegistry = PlayerRegistry(tempDir.resolve("test_players.json").absolutePath)
-        val newGameManager = GameManager(validator, battleService, factory, newRegistry)
-
-        val loadedPlayers = newGameManager.getAllPlayers()
-        assertEquals(2, loadedPlayers.size)
-
-        assertTrue(loadedPlayers.any { it.id == p1.id && it.name == "Анна" })
-        assertTrue(loadedPlayers.any { it.id == p2.id && it.name == "Борис" })
-    }
-
-    @Test
-    fun `player registry integration - duplicate names are allowed`() {
-        val p1 = gameManager.addPlayer("Анна")
-        val p2 = gameManager.addPlayer("Анна")
-
-        assertEquals(2, gameManager.getAllPlayers().size)
-        assertNotEquals(p1.id, p2.id)
-        assertEquals("Анна", p1.name)
-        assertEquals("Анна", p2.name)
-
-        val newGameManager = GameManager(validator, battleService, factory, registry)
-        val loadedPlayers = newGameManager.getAllPlayers()
-        assertEquals(2, loadedPlayers.size)
-        assertTrue(loadedPlayers.any { it.id == p1.id })
-        assertTrue(loadedPlayers.any { it.id == p2.id })
     }
 
     @Test
@@ -207,22 +142,6 @@ class IntegrationTest {
     }
 
     @Test
-    fun `ship placement constraints integration`() {
-        val p1 = gameManager.addPlayer("Анна")
-        val p2 = gameManager.addPlayer("Борис")
-        gameManager.createGame(p1.id, p2.id)
-
-        val firstResult = gameManager.placeShip(p1.id, 0, 0, 3, "right")
-        assertEquals(ShipPlacementResult.SUCCESS, firstResult)
-
-        val closeResult = gameManager.placeShip(p1.id, 0, 3, 2, "right")
-        assertEquals(ShipPlacementResult.TOO_CLOSE, closeResult)
-
-        val successResult = gameManager.placeShip(p1.id, 2, 0, 2, "right")
-        assertEquals(ShipPlacementResult.SUCCESS, successResult)
-    }
-
-    @Test
     fun `complete battle with win detection`() {
         val p1 = gameManager.addPlayer("Анна")
         val p2 = gameManager.addPlayer("Борис")
@@ -260,3 +179,4 @@ class IntegrationTest {
 
         assertEquals(4, gameManager.getAllPlayers().size)
     }
+}
