@@ -1,26 +1,8 @@
 package database
 
 import java.sql.Types
-
-data class StoredMove(
-    val playerId: Int,
-    val row: Int,
-    val col: Int,
-    val isHit: Boolean,
-    val isKill: Boolean,
-    val moveNumber: Int,
-    val timestamp: Long
-)
-
-data class StoredGame(
-    val id: String,
-    val player1Id: Int,
-    val player2Id: Int,
-    val winnerId: Int?,
-    val startTime: Long,
-    val endTime: Long?,
-    val moves: List<StoredMove>
-)
+import models.GameMove
+import models.StoredGame
 
 class GameHistoryRepository(private val dbManager: DatabaseManager) {
 
@@ -136,16 +118,16 @@ class GameHistoryRepository(private val dbManager: DatabaseManager) {
         return games
     }
 
-    private fun getMovesForGame(gameId: String): List<StoredMove> {
+    private fun getMovesForGame(gameId: String): List<GameMove> {
         val conn = dbManager.getConnection()
-        val moves = mutableListOf<StoredMove>()
+        val moves = mutableListOf< GameMove>()
 
         val stmt = conn.prepareStatement("SELECT * FROM moves WHERE game_id = ? ORDER BY move_number")
         stmt.setString(1, gameId)
         val rs = stmt.executeQuery()
 
         while (rs.next()) {
-            moves.add(StoredMove(
+            moves.add(GameMove(
                 playerId = rs.getInt("player_id"),
                 row = rs.getInt("row"),
                 col = rs.getInt("col"),
