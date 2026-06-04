@@ -162,7 +162,7 @@ class GameManager(
     fun printGameHistory() {
         val games = getAllGamesFromDb()
         if (games.isEmpty()) {
-            println("История игр пуста")
+            println(" История игр пуста")
             return
         }
 
@@ -177,15 +177,15 @@ class GameManager(
             val date = java.util.Date(game.startTime)
 
             println("\n Игра #${index + 1}")
-            println("   ID: ${game.id.take(8)}...")
-            println("   Игроки: $player1 vs $player2")
-            println("   Победитель: $winner")
-            println("   Дата: $date")
-            println("   Всего ходов: ${game.moves.size}")
-            println("   Длительность: ${(game.endTime?.minus(game.startTime) ?: 0) / 1000} сек")
+            println("    ID: ${game.id.take(8)}...")
+            println("    Игроки: $player1 vs $player2")
+            println("    Победитель: $winner")
+            println("    Дата: $date")
+            println("    Всего ходов: ${game.moves.size}")
+            println("    Длительность: ${(game.endTime?.minus(game.startTime) ?: 0) / 1000} сек")
 
             if (game.moves.isNotEmpty()) {
-                println("   📋 Подробная таблица ходов:")
+                println("    Подробная таблица ходов:")
                 println("   ┌─────┬───────────┬─────┬─────┬────────┬─────────┐")
                 println("   │ №   │ Игрок     │ Ряд │ Кол │ Попал  │ Потопил │")
                 println("   ├─────┼───────────┼─────┼─────┼────────┼─────────┤")
@@ -205,7 +205,7 @@ class GameManager(
     fun printPlayerStats() {
         val stats = getAllPlayerStatsFromDb()
         if (stats.isEmpty()) {
-            println("\n Статистика пуста. Сыграйте несколько игр!")
+            println("\n📭 Статистика пуста. Сыграйте несколько игр!")
             return
         }
 
@@ -217,9 +217,9 @@ class GameManager(
 
         stats.sortedByDescending { it.gamesWon }.forEachIndexed { index, stat ->
             val medal = when (index) {
-                0 -> "🥇"
-                1 -> "🥈"
-                2 -> "🥉"
+                0 -> "золото"
+                1 -> "серебро"
+                2 -> "бронза"
                 else -> "  "
             }
             println("║ ${medal} ${stat.playerId.toString().padStart(2)} │ ${stat.playerName.padEnd(16)} │ " +
@@ -234,10 +234,10 @@ class GameManager(
         val totalShips = stats.sumOf { it.shipsSunk }
 
         println("\n ОБЩАЯ СТАТИСТИКА:")
-        println("   Всего сыграно партий: $totalGames")
-        println("   Всего попаданий: $totalHits")
-        println("   Всего потоплено кораблей: $totalShips")
-        println("   Всего игроков: ${stats.size}")
+        println("    Всего сыграно партий: $totalGames")
+        println("    Всего попаданий: $totalHits")
+        println("    Всего потоплено кораблей: $totalShips")
+        println("    Всего игроков: ${stats.size}")
     }
 
     fun isFleetReady(playerId: Int): Boolean {
