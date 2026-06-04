@@ -295,3 +295,4 @@ class MainFrame(private val dbManager: DatabaseManager) : JFrame("Морской
             JOptionPane.INFORMATION_MESSAGE
         )
     }
+}
