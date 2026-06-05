@@ -8,7 +8,6 @@ class ConsoleUI(
     private val gameManager: GameManager,
     private val boardFactory: BoardFactory
 ) {
-
     fun start() {
         println("         МОРСКОЙ БОЙ")
 
@@ -19,8 +18,8 @@ class ConsoleUI(
                 "2" -> showPlayers()
                 "3" -> startNewGame()
                 "4" -> showCurrentGameStats()
-                "5" -> gameManager.printGameHistory()
-                "6" -> gameManager.printPlayerStats()
+                "5" -> printGameHistory()      // ← теперь здесь
+                "6" -> printPlayerStats()       // ← теперь здесь
                 "7" -> {
                     println("До свидания!")
                     return
@@ -28,18 +27,98 @@ class ConsoleUI(
                 else -> println("Неверный выбор")
             }
         }
-    }
-
+    }   
     private fun showMainMenu() {
         println("\n ГЛАВНОЕ МЕНЮ")
         println(" 1. Добавить игрока")
         println(" 2. Показать всех игроков")
         println(" 3. Начать новую игру")
         println(" 4. Показать статистику текущей игры")
-        println(" 5. История игр (БД)")
-        println(" 6. Статистика игроков (БД)")
+        println(" 5. История игр (БД)")      //  вызывает printGameHistory()
+        println(" 6. Статистика игроков (БД)") //  вызывает printPlayerStats()
         println(" 7. Выход")
         print("Выберите действие: ")
+    }
+    
+    private fun printGameHistory() {
+        val games = gameManager.getAllGamesFromDb()
+        if (games.isEmpty()) {
+            println(" История игр пуста")
+            return
+        }
+
+        println("\n╔══════════════════════════════════════════════════════════════════════════════╗")
+        println("║                              ИСТОРИЯ ИГР                                      ║")
+        println("╠══════════════════════════════════════════════════════════════════════════════╣")
+
+        games.forEachIndexed { index, game ->
+            val player1 = gameManager.getPlayerById(game.player1Id)?.name ?: "?"
+            val player2 = gameManager.getPlayerById(game.player2Id)?.name ?: "?"
+            val winner = game.winnerId?.let { gameManager.getPlayerById(it)?.name } ?: "?"
+            val date = java.util.Date(game.startTime)
+
+            println("\n Игра #${index + 1}")
+            println("    ID: ${game.id.take(8)}...")
+            println("    Игроки: $player1 vs $player2")
+            println("    Победитель: $winner")
+            println("    Дата: $date")
+            println("    Всего ходов: ${game.moves.size}")
+            println("    Длительность: ${(game.endTime?.minus(game.startTime) ?: 0) / 1000} сек")
+
+            if (game.moves.isNotEmpty()) {
+                println("    Подробная таблица ходов:")
+                println("   ┌─────┬───────────┬─────┬─────┬────────┬─────────┐")
+                println("   │ №   │ Игрок     │ Ряд │ Кол │ Попал  │ Потопил │")
+                println("   ├─────┼───────────┼─────┼─────┼────────┼─────────┤")
+                game.moves.forEach { move ->
+                    val player = gameManager.getPlayerById(move.playerId)?.name?.take(9) ?: "?"
+                    println("   │ ${move.moveNumber.toString().padStart(3)} │ ${player.padEnd(9)} │ ${move.row.toString().padStart(3)} │ ${move.col.toString().padStart(3)} │ ${if (move.isHit) "   Да   " else "   Нет  "} │ ${if (move.isKill) "   Да   " else "   Нет  "} │")
+                }
+                println("   └─────┴───────────┴─────┴─────┴────────┴─────────┘")
+            }
+            println("   ─────────────────────────────────────────────────────────────────────────")
+        }
+
+        println("\n╚══════════════════════════════════════════════════════════════════════════════╝")
+        println("Всего игр в БД: ${games.size}")
+    }
+
+    private fun printPlayerStats() {
+        val stats = gameManager.getAllPlayerStatsFromDb()
+        if (stats.isEmpty()) {
+            println("\n Статистика пуста. Сыграйте несколько игр!")
+            return
+        }
+
+        println("\n╔══════════════════════════════════════════════════════════════════════════════╗")
+        println("║                         СТАТИСТИКА ИГРОКОВ                                    ║")
+        println("╠══════════════════════════════════════════════════════════════════════════════╣")
+        println("║ ID │ Игрок            │ Игр │ Побед │ % побед │ Попаданий │ Кораблей │ Рейтинг║")
+        println("╠══════════════════════════════════════════════════════════════════════════════╣")
+
+        stats.sortedByDescending { it.gamesWon }.forEachIndexed { index, stat ->
+            val medal = when (index) {
+                0 -> "золото"
+                1 -> "серебро"
+                2 -> "бронза"
+                else -> "  "
+            }
+            println("║ ${medal} ${stat.playerId.toString().padStart(2)} │ ${stat.playerName.padEnd(16)} │ " +
+                    "${stat.gamesPlayed.toString().padStart(3)} │ ${stat.gamesWon.toString().padStart(5)} │ " +
+                    "${(stat.winRate * 100).toInt().toString().padStart(6)}% │ ${stat.totalHits.toString().padStart(9)} │ " +
+                    "${stat.shipsSunk.toString().padStart(8)} │ ${((stat.winRate * 100).toInt()).toString().padStart(6)} ║")
+        }
+        println("╚══════════════════════════════════════════════════════════════════════════════╝")
+
+        val totalGames = stats.sumOf { it.gamesPlayed } / 2
+        val totalHits = stats.sumOf { it.totalHits }
+        val totalShips = stats.sumOf { it.shipsSunk }
+
+        println("\n ОБЩАЯ СТАТИСТИКА:")
+        println("     Всего сыграно партий: $totalGames")
+        println("     Всего попаданий: $totalHits")
+        println("     Всего потоплено кораблей: $totalShips")
+        println("     Всего игроков: ${stats.size}")
     }
 
     private fun addPlayer() {
